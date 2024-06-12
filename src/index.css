@@ -1,13 +1,81 @@
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
+    "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background: rgb(231, 230, 230);
 }
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+.login-page {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.login-form {
+  padding: 50px;
+  width: 25%;
+  background-color: white;
+  border-radius: 10px;
+}
+
+.form-label {
+  display: inline-block;
+}
+
+.custom-input {
+  width: 100%;
+  resize: vertical;
+}
+
+.custom-button {
+  text-align: center;
+}
+
+.login-form-button {
+  width: 100%;
+}
+
+.login-form-forgot {
+  float: right;
+}
+
+/* Registration form */
+.register-page {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.register-form {
+  width: 100%;
+  max-width: 600px;
+  padding: 40px 50px;
+  background-color: white;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.form-item {
+  margin-bottom: 20px;
+}
+
+.custom-input {
+  width: 100%;
+}
+
+.register-form-button {
+  width: 100%;
+  background-color: #1890ff;
+  border-color: #1890ff;
+  color: white;
+}
+
+.register-form-button:hover {
+  background-color: #40a9ff;
+  border-color: #40a9ff;
 }
