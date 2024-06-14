@@ -23,12 +23,13 @@ body {
 }
 
 .form-label {
+  width: 100%;
   display: inline-block;
+  font-weight: 800;
 }
 
 .custom-input {
-  width: 100%;
-  resize: vertical;
+  padding: 6px;
 }
 
 .custom-button {
@@ -58,24 +59,4 @@ body {
   background-color: white;
   border-radius: 10px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-.form-item {
-  margin-bottom: 20px;
-}
-
-.custom-input {
-  width: 100%;
-}
-
-.register-form-button {
-  width: 100%;
-  background-color: #1890ff;
-  border-color: #1890ff;
-  color: white;
-}
-
-.register-form-button:hover {
-  background-color: #40a9ff;
-  border-color: #40a9ff;
 }

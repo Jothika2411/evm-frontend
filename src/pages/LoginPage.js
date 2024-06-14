@@ -1,68 +1,64 @@
-import React from "react";
-import { Form, Input, Button } from "antd";
-
-const LoginPage = () => {
-  const [form] = Form.useForm();
-
+import React from 'react';
+import { LockOutlined, UserOutlined } from '@ant-design/icons';
+import { Button, Checkbox, Form, Input } from 'antd';
+const App = () => {
   const onFinish = (values) => {
-    console.log("Form Values", values);
+    console.log('Received values of form: ', values);
   };
-
   return (
-    <div className="login-page">
-      <Form
-        className="login-form"
-        form={form}
-        name="register"
-        onFinish={onFinish}
-        style={{ maxWidth: 600 }}
+    <div className='login-page'>
+    <Form
+      name="normal_login"
+      className="login-form"
+      initialValues={{
+        remember: true,
+      }}
+      onFinish={onFinish}
+    >
+      <Form.Item
+        name="username"
+        rules={[
+          {
+            required: true,
+            message: 'Please input your Username!',
+          },
+        ]}
       >
-        <Form.Item
-          className="form-label"
-          name="email"
-          label="E-mail"
-          rules={[
-            {
-              type: "email",
-              message: "The input is not valid E-mail!",
-            },
-            {
-              required: true,
-              message: "Please input your E-mail!",
-            },
-          ]}
-        >
-          <Input className="custom-input" />
-        </Form.Item>
-        <Form.Item
-          className="form-label"
-          name="password"
-          label="Password"
-          rules={[
-            {
-              required: true,
-              message: "Please input your password!",
-            },
-          ]}
-          hasFeedback
-        >
-          <Input.Password className="custom-input" />
+        <Input prefix={<UserOutlined className="site-form-item-icon" />} placeholder="Username" />
+      </Form.Item>
+      <Form.Item
+        name="password"
+        rules={[
+          {
+            required: true,
+            message: 'Please input your Password!',
+          },
+        ]}
+      >
+        <Input
+          prefix={<LockOutlined className="site-form-item-icon" />}
+          type="password"
+          placeholder="Password"
+        />
+      </Form.Item>
+      <Form.Item>
+        <Form.Item name="remember" valuePropName="checked" noStyle>
+          <Checkbox>Remember me</Checkbox>
         </Form.Item>
 
-        <Form.Item>
-          <a className="login-form-forgot" href="">
-            Forgot password
-          </a>
-        </Form.Item>
-        <Form.Item>
+        <a className="login-form-forgot" href="">
+          Forgot password
+        </a>
+      </Form.Item>
+
+      <Form.Item>
         <Button type="primary" htmlType="submit" className="login-form-button">
           Log in
         </Button>
         Or <a href="/register">register now!</a>
       </Form.Item>
-      </Form>
+    </Form>
     </div>
   );
 };
-
-export default LoginPage;
+export default App;

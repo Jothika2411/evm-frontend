@@ -32,12 +32,11 @@ const tailFormItemLayout = {
     },
   },
 };
-const RegisterPage = () => {
+const RegistrationPage = () => {
   const [form] = Form.useForm();
   const onFinish = (values) => {
     console.log("Received values of form: ", values);
   };
-  
   const prefixSelector = (
     <Form.Item name="prefix" noStyle>
       <Select
@@ -45,7 +44,7 @@ const RegisterPage = () => {
           width: 70,
         }}
       >
-        <Option value="86">+91</Option>
+        <Option value="91">+91</Option>
         <Option value="87">+87</Option>
       </Select>
     </Form.Item>
@@ -69,6 +68,30 @@ const RegisterPage = () => {
         scrollToFirstError
       >
         <Form.Item
+          name="firstName"
+          label="First Name"
+          rules={[
+            {
+              required: true,
+              message: "Please input your First Name!",
+            },
+          ]}
+        >
+          <Input />
+        </Form.Item>
+        <Form.Item
+          name="lastName"
+          label="Last Name"
+          rules={[
+            {
+              required: true,
+              message: "Please input your Last Name!",
+            },
+          ]}
+        >
+          <Input />
+        </Form.Item>
+        <Form.Item
           name="email"
           label="E-mail"
           rules={[
@@ -82,9 +105,8 @@ const RegisterPage = () => {
             },
           ]}
         >
-          <Input className="custom-input" />
+          <Input />
         </Form.Item>
-
         <Form.Item
           name="password"
           label="Password"
@@ -96,9 +118,8 @@ const RegisterPage = () => {
           ]}
           hasFeedback
         >
-          <Input.Password className="custom-input" />
+          <Input.Password />
         </Form.Item>
-
         <Form.Item
           name="confirm"
           label="Confirm Password"
@@ -121,9 +142,8 @@ const RegisterPage = () => {
             }),
           ]}
         >
-          <Input.Password className="custom-input" />
+          <Input.Password />
         </Form.Item>
-
         <Form.Item
           name="phone"
           label="Phone Number"
@@ -135,31 +155,25 @@ const RegisterPage = () => {
           ]}
         >
           <Input
-            className="custom-input"
             addonBefore={prefixSelector}
             style={{
               width: "100%",
             }}
           />
         </Form.Item>
-
         <Form.Item
-          name="gender"
-          label="Gender"
+          name="employeeID"
+          label="Employee ID"
           rules={[
             {
               required: true,
-              message: "Please select gender!",
+              message: "Please input your Employee ID!",
             },
           ]}
         >
-          <Select placeholder="select your gender">
-            <Option value="male">Male</Option>
-            <Option value="female">Female</Option>
-            <Option value="other">Other</Option>
-          </Select>
+          <Input
+          />
         </Form.Item>
-
         <Form.Item {...tailFormItemLayout}>
           <Button type="primary" htmlType="submit">
             Register
@@ -169,4 +183,4 @@ const RegisterPage = () => {
     </div>
   );
 };
-export default RegisterPage;
+export default RegistrationPage;
