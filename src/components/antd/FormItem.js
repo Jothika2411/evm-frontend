@@ -1,35 +1,11 @@
-import React, { useState } from "react";
-import { Form, Input, Select } from "antd";
+import React from "react";
+import { Form, Input } from "antd";
 
-const FormItem = ({ name, label, rules }) => {
-  const formItemLayout = {
-    labelCol: {
-      xs: {
-        span: 24,
-      },
-      sm: {
-        span: 8,
-      },
-    },
-    wrapperCol: {
-      xs: {
-        span: 24,
-      },
-      sm: {
-        span: 16,
-      },
-    },
-  };
+const FormItem = ({ name, rules, prefix, type, placeholder , label}) => {
   return (
-    <div
-      {...formItemLayout}
-      style={{
-        maxWidth: 600,
-      }}
-    >
-      <Form.Item name={name} label={label} rules={rules} />
-      <Input />
-    </div>
+    <Form.Item name={name} rules={rules} label={label}>
+      <Input prefix={prefix} type={type} placeholder={placeholder} />
+    </Form.Item>
   );
 };
 
