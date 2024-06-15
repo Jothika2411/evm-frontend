@@ -1,4 +1,6 @@
-import React, { useState } from "react";
+import React from "react";
+import FormItem from "../components/antd/FormItem";
+import ConfirmPassword from "../components/antd/ConfirmPassword";
 import { Button, Form, Input, Select } from "antd";
 const { Option } = Select;
 
@@ -58,16 +60,12 @@ const RegistrationPage = () => {
         form={form}
         name="register"
         onFinish={onFinish}
-        initialValues={{
-          residence: ["zhejiang", "hangzhou", "xihu"],
-          prefix: "86",
-        }}
         style={{
           maxWidth: 600,
         }}
         scrollToFirstError
       >
-        <Form.Item
+        <FormItem
           name="firstName"
           label="First Name"
           rules={[
@@ -76,10 +74,8 @@ const RegistrationPage = () => {
               message: "Please input your First Name!",
             },
           ]}
-        >
-          <Input />
-        </Form.Item>
-        <Form.Item
+        />
+        <FormItem
           name="lastName"
           label="Last Name"
           rules={[
@@ -88,10 +84,8 @@ const RegistrationPage = () => {
               message: "Please input your Last Name!",
             },
           ]}
-        >
-          <Input />
-        </Form.Item>
-        <Form.Item
+        />
+        <FormItem
           name="email"
           label="E-mail"
           rules={[
@@ -104,11 +98,10 @@ const RegistrationPage = () => {
               message: "Please input your E-mail!",
             },
           ]}
-        >
-          <Input />
-        </Form.Item>
-        <Form.Item
+        />
+        <FormItem
           name="password"
+          type="password"
           label="Password"
           rules={[
             {
@@ -117,33 +110,10 @@ const RegistrationPage = () => {
             },
           ]}
           hasFeedback
-        >
-          <Input.Password />
-        </Form.Item>
-        <Form.Item
-          name="confirm"
-          label="Confirm Password"
-          dependencies={["password"]}
-          hasFeedback
-          rules={[
-            {
-              required: true,
-              message: "Please confirm your password!",
-            },
-            ({ getFieldValue }) => ({
-              validator(_, value) {
-                if (!value || getFieldValue("password") === value) {
-                  return Promise.resolve();
-                }
-                return Promise.reject(
-                  new Error("The new password that you entered do not match!")
-                );
-              },
-            }),
-          ]}
-        >
-          <Input.Password />
-        </Form.Item>
+        />
+
+        <ConfirmPassword dependencies={["password"]} />
+
         <Form.Item
           name="phone"
           label="Phone Number"
@@ -161,7 +131,7 @@ const RegistrationPage = () => {
             }}
           />
         </Form.Item>
-        <Form.Item
+        <FormItem
           name="employeeID"
           label="Employee ID"
           rules={[
@@ -170,10 +140,8 @@ const RegistrationPage = () => {
               message: "Please input your Employee ID!",
             },
           ]}
-        >
-          <Input
-          />
-        </Form.Item>
+        />
+
         <Form.Item {...tailFormItemLayout}>
           <Button type="primary" htmlType="submit">
             Register
