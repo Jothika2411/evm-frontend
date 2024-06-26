@@ -7,27 +7,31 @@ import CommonLayout from "../components/Layout/CommonLayout";
 import LoginPage from "../pages/Authentication/LoginPage";
 import { useNavigate } from "react-router-dom";
 
-const AppRoute = ({ isLoggedIn, onLogin }) => {
+const AppRoute = ({ onLogin }) => {
   const { auth } = useSelector((state) => state);
-  const navigate = useNavigate();
+  const isLoggedIn = auth.isLoggedIn; // Assuming your auth state structure
 
   return (
     <Routes>
-      {isLoggedIn ? (
-        protectedRoutes.map((route, index) => (
-          <Route
-            path={route.path}
-            key={index}
-            element={
-              <AdminLayout>
-                <route.Component />
-              </AdminLayout>
-            }
-          />
-        ))
-      ) : (
-        <Route path="/" element={<LoginPage onLogin={onLogin} />} />
-      )}
+      {isLoggedIn
+        ? protectedRoutes.map((route, index) => (
+            <Route
+              path={route.path}
+              key={index}
+              element={
+                <AdminLayout>
+                  <route.Component />
+                </AdminLayout>
+              }
+            />
+          ))
+        : publicRoutes.map((route, index) => (
+            <Route
+              path={route.path}
+              key={index}
+              element={<LoginPage onLogin={onLogin} />}
+            />
+          ))}
       <Route path="*" element={<navigate to="/" />} />
     </Routes>
   );
