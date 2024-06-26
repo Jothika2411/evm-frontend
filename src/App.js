@@ -1,19 +1,22 @@
-import React from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import "./index.css";
-import LoginPage from "./pages/LoginPage";
-import RegistrationPage from "./pages/RegistrationPage";
+import React, { useState } from "react";
+import store from "./store";
+import { Provider } from "react-redux";
+import AppRoute from "./routes/route";
 
 const App = () => {
+
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [user, setUser] = useState(null);
+
+  const handleLogin = (userData) => {
+    setUser(userData);
+    setIsLoggedIn(true);
+  };
+
   return (
-    <Router>
-      <div className="app">
-        <Routes>
-          <Route exact path="/" element={<LoginPage />} />
-          <Route path="/register" element={<RegistrationPage />} />
-        </Routes>
-      </div>
-    </Router>
+   <Provider store={store}>
+    <AppRoute isLoggedIn={isLoggedIn} onLogin={handleLogin}/>
+   </Provider>
   );
 };
 
