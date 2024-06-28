@@ -22,10 +22,10 @@ const sidebarRoutes = [
     subItems: [],
   },
   {
-    label: "Campaigns",
+    label: "Events",
     isMenu: false,
     img: <CampaignIcon />,
-    route: ROUTES.COMPAIGNS,
+    route: ROUTES.EVENTS,
     subItems: [],
   },
   {

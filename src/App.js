@@ -17,19 +17,17 @@ const App = () => {
     setLoading(false);
   }, []);
 
+  const handleLogin = (userData) => {
+    setUser(userData);
+    setIsLoggedIn(true);
+    localStorage.setItem("user", JSON.stringify(userData));
+    localStorage.setItem("isLoggedIn", "true");
+  };
   if (loading) return <div>Loading...</div>;
 
   return (
     <Provider store={store}>
-      <AppRoute
-        isLoggedIn={isLoggedIn}
-        onLogin={(userData) => {
-          setUser(userData);
-          setIsLoggedIn(true);
-          localStorage.setItem("user", JSON.stringify(userData));
-          localStorage.setItem("isLoggedIn", "true");
-        }}
-      />
+      <AppRoute isLoggedIn={isLoggedIn} onLogin={handleLogin} />
     </Provider>
   );
 };

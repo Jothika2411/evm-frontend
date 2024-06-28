@@ -7,9 +7,8 @@ import CommonLayout from "../components/Layout/CommonLayout";
 import LoginPage from "../pages/Authentication/LoginPage";
 import { useNavigate } from "react-router-dom";
 
-const AppRoute = ({ onLogin }) => {
+const AppRoute = ({ onLogin, isLoggedIn }) => {
   const { auth } = useSelector((state) => state);
-  const isLoggedIn = auth.isLoggedIn; // Assuming your auth state structure
 
   return (
     <Routes>

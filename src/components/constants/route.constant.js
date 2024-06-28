@@ -5,7 +5,7 @@ export const ROUTES = {
 
   //Sidebar
   DASHBOARD: "/dashboard",
-  COMPAIGNS: "/compaigns",
+  EVENTS: "/events",
   SOCIAL: "/social",
   MARKETING_AUTOMATION: "/marketing-automation",
   SURVEY: "/survey",
