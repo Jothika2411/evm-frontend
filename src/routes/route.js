@@ -31,7 +31,7 @@ const AppRoute = ({ onLogin, isLoggedIn }) => {
               element={<LoginPage onLogin={onLogin} />}
             />
           ))}
-      <Route path="*" element={<navigate to="/" />} />
+     <Route path="*" element={<navigate to={isLoggedIn ? "/" : "/login"} />} />
     </Routes>
   );
 };
