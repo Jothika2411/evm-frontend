@@ -1,7 +1,10 @@
-import React from "react";
-import FormItem from "../components/antd/FormItem";
-import ConfirmPassword from "../components/antd/ConfirmPassword";
+import React, { useState } from "react";
+import FormItem from "../../components/antd/FormItem";
+import ConfirmPassword from "../../components/antd/ConfirmPassword";
 import { Button, Form, Input, Select } from "antd";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
+
 const { Option } = Select;
 
 const formItemLayout = {
@@ -36,9 +39,24 @@ const tailFormItemLayout = {
 };
 const RegistrationPage = () => {
   const [form] = Form.useForm();
-  const onFinish = (values) => {
-    console.log("Received values of form: ", values);
+  const navigate = useNavigate();
+  const [error, setError] = useState(null);
+
+  const onFinish = async (values) => {
+    try {
+      const response = await axios.post(
+        "http://localhost:8080/api/register/userRegister",
+        values
+      );
+      console.log("Registration Success:", response.data);
+      form.resetFields();
+      navigate("/");
+    } catch (error) {
+      console.error("Registration Error:", error.response.data);
+      setError(error.response.data.error || "Registration failed");
+    }
   };
+
   const prefixSelector = (
     <Form.Item name="prefix" noStyle>
       <Select
@@ -115,7 +133,7 @@ const RegistrationPage = () => {
         <ConfirmPassword dependencies={["password"]} />
 
         <Form.Item
-          name="phone"
+          name="mobile"
           label="Phone Number"
           rules={[
             {
@@ -132,7 +150,7 @@ const RegistrationPage = () => {
           />
         </Form.Item>
         <FormItem
-          name="employeeID"
+          name="employeeId"
           label="Employee ID"
           rules={[
             {
@@ -147,6 +165,18 @@ const RegistrationPage = () => {
             Register
           </Button>
         </Form.Item>
+        {error && (
+          <div
+            className="error"
+            style={{
+              alignItems: "center",
+              justifyContent: "center",
+              textAlign: "center",
+            }}
+          >
+            {error}
+          </div>
+        )}
       </Form>
     </div>
   );
