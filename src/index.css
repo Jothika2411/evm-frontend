@@ -8,6 +8,11 @@ body {
   background: rgb(231, 230, 230);
 }
 
+/* Error */
+.error {
+  color: red;
+}
+
 .login-page {
   display: flex;
   justify-content: center;
@@ -59,4 +64,84 @@ body {
   background-color: white;
   border-radius: 10px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.welcome-page {
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+/* Sidebar */
+.sidebar {
+  width: 250px;
+  height: 100%;
+  position: fixed;
+  top: 0;
+  left: 0;
+  background-color: rgb(7, 7, 66);
+  overflow-x: hidden;
+  transition: all 0.3s ease;
+}
+.sidebar.closed {
+  width: 80px;
+}
+
+.sidebar-items {
+  list-style-type: none;
+  padding: 0;
+}
+
+.sidebar-item {
+  padding: 20px;
+}
+
+.sidebar-item a {
+  display: block;
+  color: #fff;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+}
+
+.sidebar-item a:hover {
+  color: #3055a7;
+}
+
+.sidebar-item a.active {
+  color: #3055a7;
+}
+
+.sidebar-label {
+  margin-left: 10px;
+}
+
+.toggle-button-container {
+  padding: 10px;
+  margin-bottom: 10px;
+}
+
+.toggle-button {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: none;
+  border: none;
+  color: #fff;
+  cursor: pointer;
+}
+
+.adminLayoutWrap {
+  display: flex;
+}
+
+.contentWrap {
+  margin-left: 250px;
+  flex-grow: 1;
+  padding: 20px;
+  transition: margin-left 0.3s;
+}
+
+.sidebar.closed + .contentWrap {
+  margin-left: 80px;
 }

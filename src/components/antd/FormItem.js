@@ -1,11 +1,32 @@
 import React from "react";
 import { Form, Input } from "antd";
+import { Field } from "formik";
 
-const FormItem = ({ name, rules, prefix, type, placeholder , label}) => {
+const FormItem = ({ name, rules, prefix, type, placeholder, label }) => {
   return (
-    <Form.Item name={name} rules={rules} label={label}>
-      <Input prefix={prefix} type={type} placeholder={placeholder} />
-    </Form.Item>
+    <Field name={name}>
+      {({ field, form }) => (
+        <Form.Item
+          name={name}
+          rules={rules}
+          label={label}
+          validateStatus={
+            form.errors[name] && form.touched[name] ? "error" : ""
+          }
+          help={form.errors[name] && form.touched[name] ? form.errors[name] : ""}
+        >
+          <Input
+            {...field}
+            prefix={prefix}
+            type={type}
+            placeholder={placeholder}
+            onChange={(e) => {
+              form.setFieldValue(name, e.target.value);
+            }}
+          />
+        </Form.Item>
+      )}
+    </Field>
   );
 };
 
