@@ -1,36 +1,59 @@
-import { Table, Button, Modal, message } from "antd";
+import { Button, Modal, message, TimePicker } from "antd";
 import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { Formik, Form, Field } from "formik";
 import SubmitButton from "../../components/antd/SubmitButton";
+import ATable from "../../components/antd/Table/Table";
+import FormItem from "../../components/antd/FormItem";
+import Datepicker from "../../components/antd/Datepicker";
+import moment from "moment";
+import TimeRangePickerComponent from "../../components/antd/TimePIcker";
 
 const Events = () => {
   const [data, setData] = useState([]);
+  const [venues, setVenues] = useState([]);
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [selectedTimeRange, setSelectedTimeRange] = useState(["", ""]);
   const [initialValues, setInitialValues] = useState({
     event: "",
     venue: "",
     date: "",
+    time: ["", ""],
   });
   const [isEditing, setIsEditing] = useState(false);
   const [currentEventId, setCurrentEventId] = useState(null);
 
-  useEffect(() => {
-    const fetchEvent = async () => {
-      try {
-        const res = await axios.get("http://localhost:8080/api/register/event");
-        const eventData = res.data;
-        if (eventData && Array.isArray(eventData.events)) {
-          setData(eventData.events);
-        } else {
-          console.error("Fetched data does not contain an array", eventData);
-        }
-      } catch (error) {
-        console.error("Error fetching data", error);
+  const fetchEvent = async () => {
+    try {
+      const res = await axios.get("http://localhost:8080/api/register/event");
+      const eventData = res.data;
+      if (eventData && Array.isArray(eventData.events)) {
+        setData(eventData.events);
+      } else {
+        console.error("Fetched data does not contain an array", eventData);
       }
-    };
+    } catch (error) {
+      console.error("Error fetching data", error);
+    }
+  };
+
+  const fetchVenues = async () => {
+    try {
+      const res = await axios.get("http://localhost:8080/api/register/venue");
+      const venueData = res.data;
+      if (venueData && Array.isArray(venueData.events)) {
+        setVenues(venueData.events);
+      } else {
+        console.error("Fetched data does not contain an array", venueData);
+      }
+    } catch (error) {
+      console.error("Error ", error);
+    }
+  };
+  useEffect(() => {
     fetchEvent();
+    fetchVenues();
   }, []);
 
   const columns = [
@@ -41,13 +64,26 @@ const Events = () => {
     },
     {
       title: "Venue",
-      dataIndex: "venue",
+      dataIndex: ["venue", "name"],
       key: "venue",
     },
     {
       title: "Date",
       dataIndex: "date",
       key: "date",
+      render: (text) => moment(text).format("DD-MM-YYYY"),
+    },
+    {
+      title: "Start Time",
+      dataIndex: ["time", "from"],
+      key: "startTime",
+      render: (text) => (text ? moment(text).format("HH:mm") : ""),
+    },
+    {
+      title: "End Time",
+      dataIndex: ["time", "to"],
+      key: "endTime",
+      render: (text) => (text ? moment(text).format("HH:mm") : ""),
     },
     {
       title: "Actions",
@@ -87,6 +123,7 @@ const Events = () => {
         event: record.event,
         venue: record.venue,
         date: record.date,
+        time: [record.time.from, record.time.to],
       });
       setCurrentEventId(record._id);
       setIsEditing(true);
@@ -96,12 +133,12 @@ const Events = () => {
       message.error("Record does not have an ID");
     }
   };
-
   const handleAddEvent = () => {
     setInitialValues({
       event: "",
       venue: "",
       date: "",
+      time: ["", ""],
     });
     setIsEditing(false);
     setIsModalVisible(true);
@@ -111,16 +148,33 @@ const Events = () => {
     setIsModalVisible(false);
   };
 
+  const handleTimeRangeChange = (timeStrings) => {
+    setSelectedTimeRange({
+      from: timeStrings[0],
+      to: timeStrings[1],
+    });
+  };
+
   const handleFormSubmit = async (values, { resetForm }) => {
+    console.log("Form Values:", values);
+    const updatedValues = {
+      ...values,
+      time: {
+        from: selectedTimeRange.from,
+        to: selectedTimeRange.to,
+      },
+    };
+    console.log("updated Form Values:", updatedValues);
+
     if (isEditing) {
       try {
         await axios.patch(
           `http://localhost:8080/api/register/event/${currentEventId}`,
-          values
+          updatedValues
         );
         setData(
           data.map((item) =>
-            item._id === currentEventId ? { ...item, ...values } : item
+            item._id === currentEventId ? { ...item, ...updatedValues } : item
           )
         );
         message.success("Event updated successfully");
@@ -132,7 +186,7 @@ const Events = () => {
       try {
         const res = await axios.post(
           "http://localhost:8080/api/register/event",
-          values
+          updatedValues
         );
         const newEvent = res.data;
         setData([...data, newEvent]);
@@ -144,6 +198,7 @@ const Events = () => {
     }
     resetForm();
     setIsModalVisible(false);
+    fetchEvent();
   };
 
   return (
@@ -151,7 +206,7 @@ const Events = () => {
       <Button type="primary" onClick={handleAddEvent}>
         Add Event
       </Button>
-      <Table columns={columns} dataSource={data} rowKey="_id" />
+      <ATable columns={columns} dataSource={data} rowKey="_id" />
       <Modal open={isModalVisible} onCancel={handleModalCancel} footer={null}>
         <Formik
           initialValues={initialValues}
@@ -160,30 +215,35 @@ const Events = () => {
         >
           {({ values, handleChange }) => (
             <Form>
-              <div>
-                <Field
-                  name="event"
-                  placeholder="Event"
-                  value={values.event}
-                  onChange={handleChange}
-                />
-              </div>
-              <div>
-                <Field
-                  name="venue"
-                  placeholder="Venue"
-                  value={values.venue}
-                  onChange={handleChange}
-                />
-              </div>
-              <div>
-                <Field
-                  name="date"
-                  placeholder="Date"
-                  value={values.date}
-                  onChange={handleChange}
-                />
-              </div>
+              <FormItem
+                name="event"
+                placeholder="Event"
+                value={values.event}
+                onChange={handleChange}
+              />
+
+              <Field as="select" name="venue" onChange={handleChange}>
+                <option value="">Select Venue</option>
+                {venues.map((venue) => (
+                  <option key={venue._id} value={venue._id}>
+                    {venue.name}
+                  </option>
+                ))}
+              </Field>
+
+              <Datepicker
+                name="date"
+                value={values.date}
+                onChange={(date) =>
+                  handleChange({ target: { name: "date", value: date } })
+                }
+              />
+
+              <TimeRangePickerComponent
+                onTimeRangeChange={handleTimeRangeChange}
+                name="time"
+                value={[selectedTimeRange.from, selectedTimeRange.to]}
+              />
               <SubmitButton text="Submit" />
             </Form>
           )}
