@@ -5,8 +5,6 @@ const { RangePicker } = TimePicker;
 
 const TimeRangePickerComponent = ({ onTimeRangeChange, value }) => {
   const onChange = (time, timeString) => {
-    console.log("Time objects:", time);
-    console.log("Formatted Time Strings:", timeString);
     onTimeRangeChange(time);
   };
 

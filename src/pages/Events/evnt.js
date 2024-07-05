@@ -26,6 +26,10 @@ const Events = () => {
   const [error, setError] = useState(false);
   const [fromTimeRange, setFromTimeRange] = useState([]);
   const [toTimeRange, setToTimeRange] = useState([]);
+  const [timeRanges, setTimeRanges] = useState([]);
+
+  const [havedate, setHaveDate] = useState([]);
+  const [selectedDate, setSelectedDate] = useState([]);
 
   const fetchEvent = async () => {
     try {
@@ -33,12 +37,17 @@ const Events = () => {
       const eventData = res.data;
       if (eventData && Array.isArray(eventData.events)) {
         setData(eventData.events);
-        const fromTime = eventData.events.map((event) => event.time.from);
-        const toTime = eventData.events.map((event) => event.time.to);
-        setFromTimeRange(fromTime);
-        setToTimeRange(toTime);
-        console.log("from fetch", fromTimeRange);
-        console.log("to fetch", toTimeRange);
+        // const fromTime = eventData.events.map((event) => event.time.from);
+        // const toTime = eventData.events.map((event) => event.time.to);
+        // setFromTimeRange(fromTime);
+        // setToTimeRange(toTime);
+        const existsTime = eventData.events.map((event) => ({
+          from: event.time.from,
+          to: event.time.to,
+        }));
+        setTimeRanges(existsTime);
+        const dates = eventData.events.map((event) => event.date);
+        setHaveDate(dates);
       } else {
         console.error("Fetched data does not contain an array", eventData);
       }
@@ -64,11 +73,11 @@ const Events = () => {
     fetchEvent();
     fetchVenues();
   }, []);
-  useEffect(() => {
-    console.log("Updated fromTimeRange", fromTimeRange);
-    console.log("Updated toTimeRange", toTimeRange);
-  }, [fromTimeRange, toTimeRange]);
 
+  useEffect(() => {
+    console.log("db time", timeRanges);
+    console.log("db date", havedate);
+  }, [fromTimeRange, toTimeRange, havedate]);
   const columns = [
     {
       title: "Event",
@@ -90,13 +99,13 @@ const Events = () => {
       title: "Start Time",
       dataIndex: ["time", "from"],
       key: "startTime",
-      render: (text) => (text ? moment(text).format("HH:mm") : ""),
+      render: (text) => (text ? moment(parseInt(text)).format("HH:mm") : ""),
     },
     {
       title: "End Time",
       dataIndex: ["time", "to"],
       key: "endTime",
-      render: (text) => (text ? moment(text).format("HH:mm") : ""),
+      render: (text) => (text ? moment(parseInt(text)).format("HH:mm") : ""),
     },
     {
       title: "Actions",
@@ -161,24 +170,38 @@ const Events = () => {
     setIsModalVisible(false);
   };
 
-  const handleTimeRangeChange = (time, timeStrings) => {
-    setSelectedTimeRange({
-      from: time[0],
-      to: time[1],
-    });
+  const handleDateChange = (date, handleChange) => {
+    const formattedDate = date ? date.format("YYYY-MM-DD") : null;
+    setSelectedDate(formattedDate);
+    handleChange({ target: { name: "date", value: formattedDate } });
   };
-  console.log("from timerange", selectedTimeRange.from);
-  console.log("to timerange", selectedTimeRange.to);
-
-  const disabledHours = () => {
-    return [18]; // Disable hours between 6 to 7 PM
+  
+  const convertToTimestamp = (timeString) => {
+    return Number(timeString);
   };
+  
+  const handleTimeRangeChange = (dates) => {
+    if (dates && dates[0] && dates[1]) {
+      const fromTime = dates[0].valueOf();
+      const toTime = dates[1].valueOf();
 
-  const disabledMinutes = (hour) => {
-    if (hour === 18) {
-      return [30]; // Disable 30th minute for 6 PM
+      const convertedTimeRanges = timeRanges.map((range) => ({
+        from: convertToTimestamp(range.from),
+        to: convertToTimestamp(range.to),
+      }));
+
+      const isConflict = convertedTimeRanges.some((range) => {
+        return fromTime < range.to && toTime > range.from;
+      });
+
+      if (isConflict) {
+        setError(true);
+        message.error("Time range conflicts with existing events");
+      } else {
+        setError(false);
+        setSelectedTimeRange({ from: fromTime, to: toTime });
+      }
     }
-    return [];
   };
 
   const handleFormSubmit = async (values, { resetForm }) => {
@@ -248,7 +271,6 @@ const Events = () => {
                 value={values.event}
                 onChange={handleChange}
               />
-
               <Field as="select" name="venue" onChange={handleChange}>
                 <option value="">Select Venue</option>
                 {venues.map((venue) => (
@@ -257,39 +279,19 @@ const Events = () => {
                   </option>
                 ))}
               </Field>
-
               <Datepicker
                 name="date"
-                value={values.date}
-                onChange={(date) =>
-                  handleChange({ target: { name: "date", value: date } })
-                }
+                onChange={(date) => handleDateChange(date, handleChange)}
+                dateFormat="yyyy-MM-dd"
               />
-              {/* <Datepicker
-                name="date"
-                value={values.date}
-                // onChange={(date) =>
-                //   handleDateChange({ target: { name: "date", value: date } })
-                // }
-                // onChange={(date) => {
-                //   handleChange({ target: { name: "date", value: date } });
-                //   handleDateChange(date);
-                // }}
-                onChange={(date) => handleDateChange(date)}
-              /> */}
               <RangePicker
-                onChange={(time, timeStrings) =>
-                  handleTimeRangeChange(time, timeStrings)
-                }
+                onChange={handleTimeRangeChange}
                 format="HH:mm"
-                disabledHours={() => disabledHours()}
-                disabledMinutes={(hour) => disabledMinutes(hour)}
-                value={[selectedTimeRange.from, selectedTimeRange.to]}
+                onOk={handleTimeRangeChange}
               />
               {error && (
                 <div className="error">This time range already exists.</div>
               )}
-
               <div style={{ marginTop: "30px" }}>
                 <SubmitButton text="Submit" />
               </div>

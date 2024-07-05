@@ -8,8 +8,9 @@ import ATable from "../../components/antd/Table/Table";
 import FormItem from "../../components/antd/FormItem";
 import Datepicker from "../../components/antd/Datepicker";
 import moment from "moment";
-import TimeRangePickerComponent from "../../components/antd/TimePIcker";
+import * as Yup from "yup";
 
+const { RangePicker } = TimePicker;
 const Events = () => {
   const [data, setData] = useState([]);
   const [venues, setVenues] = useState([]);
@@ -23,6 +24,19 @@ const Events = () => {
   });
   const [isEditing, setIsEditing] = useState(false);
   const [currentEventId, setCurrentEventId] = useState(null);
+  const [error, setError] = useState(false);
+  const [fromTimeRange, setFromTimeRange] = useState([]);
+  const [toTimeRange, setToTimeRange] = useState([]);
+  const [timeRanges, setTimeRanges] = useState([]);
+
+  const [havedate, setHaveDate] = useState([]);
+  const [selectedDate, setSelectedDate] = useState([]);
+
+  const validationSchema = Yup.object().shape({
+    event: Yup.string().required("Event name is required"),
+    venue: Yup.string().required("Venue is required"),
+    date: Yup.date().required("Date is required"),
+  });
 
   const fetchEvent = async () => {
     try {
@@ -30,6 +44,16 @@ const Events = () => {
       const eventData = res.data;
       if (eventData && Array.isArray(eventData.events)) {
         setData(eventData.events);
+        const existsTime = eventData.events.map((event) => ({
+          from: event.time.from,
+          to: event.time.to,
+          date: moment(event.date).format("YYYY-MM-DD"),
+        }));
+        setTimeRanges(existsTime);
+        const dates = eventData.events.map((event) =>
+          moment(event.date).format("YYYY-MM-DD")
+        );
+        setHaveDate(dates);
       } else {
         console.error("Fetched data does not contain an array", eventData);
       }
@@ -56,6 +80,10 @@ const Events = () => {
     fetchVenues();
   }, []);
 
+  useEffect(() => {
+    console.log("db time", timeRanges);
+    console.log("db date", havedate);
+  }, [fromTimeRange, toTimeRange, havedate]);
   const columns = [
     {
       title: "Event",
@@ -77,13 +105,13 @@ const Events = () => {
       title: "Start Time",
       dataIndex: ["time", "from"],
       key: "startTime",
-      render: (text) => (text ? moment(text).format("HH:mm") : ""),
+      render: (text) => (text ? moment(parseInt(text)).format("HH:mm") : ""),
     },
     {
       title: "End Time",
       dataIndex: ["time", "to"],
       key: "endTime",
-      render: (text) => (text ? moment(text).format("HH:mm") : ""),
+      render: (text) => (text ? moment(parseInt(text)).format("HH:mm") : ""),
     },
     {
       title: "Actions",
@@ -123,7 +151,7 @@ const Events = () => {
         event: record.event,
         venue: record.venue,
         date: record.date,
-        time: [record.time.from, record.time.to],
+        time: [moment(record.time.from), moment(record.time.to)],
       });
       setCurrentEventId(record._id);
       setIsEditing(true);
@@ -148,15 +176,47 @@ const Events = () => {
     setIsModalVisible(false);
   };
 
-  const handleTimeRangeChange = (timeStrings) => {
-    setSelectedTimeRange({
-      from: timeStrings[0],
-      to: timeStrings[1],
-    });
+  const handleDateChange = (date, handleChange) => {
+    const formattedDate = date ? date.format("YYYY-MM-DD") : null;
+    setSelectedDate(formattedDate);
+    handleChange({ target: { name: "date", value: formattedDate } });
+  };
+
+  const convertToTimestamp = (timeString) => {
+    return Number(timeString);
+  };
+
+  const handleTimeRangeChange = (time) => {
+    if (time && time[0] && time[1]) {
+      const fromTime = time[0].valueOf();
+      const toTime = time[1].valueOf();
+
+      const filteredTimeRanges = timeRanges.filter(
+        (range) => range.date === selectedDate
+      );
+
+      const convertedTimeRanges = filteredTimeRanges.map((range) => ({
+        from: convertToTimestamp(range.from),
+        to: convertToTimestamp(range.to),
+      }));
+
+      const isConflict = convertedTimeRanges.some((range) => {
+        return fromTime < range.to && toTime > range.from;
+      });
+
+      if (isConflict) {
+        setError(true);
+        message.error("Time range aleady booked.");
+      } else {
+        setError(false);
+        setSelectedTimeRange({ from: fromTime, to: toTime });
+      }
+    }
   };
 
   const handleFormSubmit = async (values, { resetForm }) => {
     console.log("Form Values:", values);
+
     const updatedValues = {
       ...values,
       time: {
@@ -211,18 +271,19 @@ const Events = () => {
         <Formik
           initialValues={initialValues}
           onSubmit={handleFormSubmit}
+          validationSchema={validationSchema}
           enableReinitialize
         >
           {({ values, handleChange }) => (
             <Form>
               <FormItem
+                required
                 name="event"
                 placeholder="Event"
                 value={values.event}
                 onChange={handleChange}
               />
-
-              <Field as="select" name="venue" onChange={handleChange}>
+              <Field required as="select" name="venue" onChange={handleChange}>
                 <option value="">Select Venue</option>
                 {venues.map((venue) => (
                   <option key={venue._id} value={venue._id}>
@@ -230,21 +291,21 @@ const Events = () => {
                   </option>
                 ))}
               </Field>
-
               <Datepicker
                 name="date"
-                value={values.date}
-                onChange={(date) =>
-                  handleChange({ target: { name: "date", value: date } })
-                }
+                onChange={(date) => handleDateChange(date, handleChange)}
+                dateFormat="yyyy-MM-dd"
               />
-
-              <TimeRangePickerComponent
-                onTimeRangeChange={handleTimeRangeChange}
-                name="time"
-                value={[selectedTimeRange.from, selectedTimeRange.to]}
+              <RangePicker
+                required
+                onChange={handleTimeRangeChange}
+                format="HH:mm"
+                onOk={handleTimeRangeChange}
               />
-              <SubmitButton text="Submit" />
+              {error && <div className="error">Time range aleady booked.</div>}
+              <div style={{ marginTop: "30px" }}>
+                <SubmitButton text="Submit" />
+              </div>
             </Form>
           )}
         </Formik>
